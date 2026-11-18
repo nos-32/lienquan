@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08090b"><meta name="description" content="Bộ mô phỏng quyết định Mid và Support trong Liên Quân Mobile">
+<title>Quyết định Mid / Support</title>
+<style>
+:root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#08090b;color:#f3f4f6}*{box-sizing:border-box}body{margin:0;padding:24px 14px 52px}.app{max-width:520px;margin:auto}.eyebrow{font-size:12px;letter-spacing:.13em;color:#91a9ec;font-weight:700;text-transform:uppercase}h1{font-size:23px;line-height:1.22;margin:9px 0 9px}p.lead{margin:0 0 24px;color:#afb2bb;font-size:14px;line-height:1.55}.group{margin:22px 0}.group-title{font-size:14px;color:#c5c6ca;font-weight:650;margin:0 0 10px}.roles{display:grid;grid-template-columns:1fr 1fr;padding:4px;background:#222327;border-radius:16px;gap:4px}.role{border:0;background:transparent;color:#aeb0b7;border-radius:12px;min-height:39px;font-size:15px;font-weight:700;cursor:pointer}.role.active{background:#3b4050;color:#fff;box-shadow:0 1px 3px #0005}.choices{display:grid;gap:9px}.choice{display:flex;align-items:center;gap:13px;padding:10px 11px;border:1px solid #292c34;border-radius:13px;min-height:48px;cursor:pointer;background:#101115;line-height:1.45;font-size:15px}.choice:has(input:checked){background:#171d2e;border-color:#698cff}.choice input{appearance:none;flex:0 0 auto;width:19px;height:19px;margin:0;border:1.5px solid #777b87;border-radius:50%;display:grid;place-items:center}.choice input:checked{border:5px solid #9cb3ff;background:#fff}.result{margin-top:26px;border:1px solid #343c51;background:linear-gradient(145deg,#141b2b,#101115 75%);border-radius:18px;padding:19px 17px}.result .mini{color:#a9bbf4;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.result h2{font-size:18px;line-height:1.4;margin:12px 0}.result p{font-size:15px;line-height:1.65;color:#d3d6dd;margin:0}.result ul{margin:13px 0 0;padding-left:19px;color:#cbd0dc;font-size:14px;line-height:1.75}.note{font-size:12px;color:#8f939f;line-height:1.5;margin:17px 2px 0}button:focus-visible,.choice:focus-within{outline:2px solid #a5bbff;outline-offset:2px}@media(min-width:600px){body{padding-top:48px}}
+</style>
+</head>
+<body><main class="app">
+<div class="eyebrow">Liên Quân Mobile · Sổ tay chiến thuật</div>
+<h1>Bộ mô phỏng quyết định Mid / Support</h1>
+<p class="lead">Chọn tình huống hiện tại. Gợi ý sẽ thay đổi ngay để bạn tham khảo khi ra quyết định.</p>
+<section class="group"><div class="group-title">Vai trò</div><div class="roles" role="group" aria-label="Vai trò"><button type="button" class="role active" data-role="Mid" aria-pressed="true">Mid</button><button type="button" class="role" data-role="Support" aria-pressed="false">Support</button></div></section>
+<section class="group"><div class="group-title">Thế trận chung</div><div class="choices">
+<label class="choice"><input type="radio" name="match" value="ahead">Đang dẫn trước</label>
+<label class="choice"><input type="radio" name="match" value="even">Đang cân bằng</label>
+<label class="choice"><input type="radio" name="match" value="behind" checked>Đang bị dẫn trước</label>
+</div></section>
+<section class="group"><div class="group-title">Trạng thái lính</div><div class="choices">
+<label class="choice"><input type="radio" name="wave" value="clear">Đã dọn lính, tạm thời an toàn</label>
+<label class="choice"><input type="radio" name="wave" value="pending" checked>Đang có lính cần xử lý</label>
+</div></section>
+<section class="group"><div class="group-title">Vị trí đồng đội</div><div class="choices">
+<label class="choice"><input type="radio" name="team" value="near">Có đồng đội gần, có thể phối hợp</label>
+<label class="choice"><input type="radio" name="team" value="far" checked>Đồng đội ở xa, khó tiếp ứng</label>
+</div></section>
+<section class="result" aria-live="polite"><div class="mini">💡 Hành động nên ưu tiên</div><h2 id="headline"></h2><p id="detail"></p><ul id="steps"></ul></section>
+<p class="note">Gợi ý mang tính tham khảo. Hãy ưu tiên thông tin thực tế trên bản đồ nhỏ, vị trí địch và thời điểm xuất hiện mục tiêu lớn.</p>
+</main><script>
+(function(){
+const defaults={role:'Mid',match:'behind',wave:'pending',team:'far'};
+let state={...defaults};
+try{const saved=JSON.parse(localStorage.getItem('lq-mid-support-v1')||'null');if(saved && ['Mid','Support'].includes(saved.role)&&['ahead','even','behind'].includes(saved.match)&&['clear','pending'].includes(saved.wave)&&['near','far'].includes(saved.team))state=saved;}catch(e){}
+const $=id=>document.getElementById(id);
+function update(){
+const {role,match,wave,team}=state;const mid=role==='Mid';
+let title,detail,steps=[];
+if(match==='behind' && team==='far'){
+ title='Ưu tiên giữ an toàn và tránh giao tranh đơn lẻ';
+ detail=mid?'Bạn đang thiếu người tiếp ứng. Hạn chế tiến quá sông hoặc vào rừng địch, kể cả khi thấy mục tiêu thấp máu.':'Bạn đang thiếu đồng đội để hỗ trợ. Không tự vào bụi tối hoặc mở giao tranh khi đội chưa sẵn sàng.';
+ steps=mid?['Dọn lính ở vị trí an toàn; ưu tiên giữ trụ.','Báo hiệu nguy hiểm và quan sát tướng địch mất dấu.','Chờ đồng đội rồi mới kiểm soát sông hoặc mục tiêu lớn.']:['Ở gần đồng đội dễ bị bắt hoặc vị trí cần bảo vệ.','Dùng kỹ năng kiểm tra bụi từ khoảng cách an toàn nếu tướng cho phép.','Tập hợp đội hình trước khi tranh chấp mục tiêu lớn.'];
+}else if(wave==='pending'){
+ title='Ưu tiên xử lý đợt lính trước khi đảo đường';
+ detail=mid?'Nếu bỏ lính lúc này, bạn có thể mất vàng, kinh nghiệm hoặc áp lực trụ. Chọn vị trí dọn lính dựa trên tầm nhìn và vị trí địch.':'Hỗ trợ người đi đường xử lý lính an toàn, nhưng đừng giành tài nguyên không cần thiết hoặc bỏ đồng đội chủ lực quá xa.';
+ steps=mid?['Dọn đợt lính trong phạm vi an toàn.','Sau khi đẩy lính, nhìn bản đồ nhỏ và chọn hướng đảo đường.','Nếu địch đang rình, ping cảnh báo thay vì di chuyển mù.']:['Bảo vệ đồng đội đang dọn lính.','Kiểm tra tầm nhìn gần bằng kỹ năng khi an toàn.','Di chuyển cùng người có thể phối hợp sau khi lính được xử lý.'];
+}else if(match==='ahead' && team==='near'){
+ title='Tận dụng lợi thế để tạo áp lực bản đồ';
+ detail=mid?'Bạn đã có thời gian di chuyển và có đồng đội gần. Phối hợp chiếm khu vực quan trọng thay vì tấn công riêng lẻ.':'Có lợi thế và quân số gần nhau. Chủ động mở tầm nhìn, giữ vị trí bảo vệ đội hình và chuẩn bị kiểm soát mục tiêu.';
+ steps=mid?['Đảo đường cùng đồng đội sau khi dọn lính.','Kiểm soát khu vực sông, rừng hoặc mục tiêu phù hợp.','Không đuổi theo địch quá sâu khi mất tầm nhìn.']:['Dẫn đội kiểm tra khu vực có thông tin tướng địch.','Che chắn cho nguồn sát thương chủ lực.','Ping tập trung khi có cơ hội lấy mục tiêu.'];
+}else if(team==='near'){
+ title='Phối hợp đồng đội và chọn giao tranh có lợi';
+ detail=mid?'Bạn có đồng đội ở gần. Chọn vị trí gây sát thương an toàn, chú ý hồi chiêu và số lượng đối phương trước khi tham gia.':'Giữ đội hình, cung cấp tầm nhìn và chỉ mở giao tranh khi đồng đội có thể theo kịp.';
+ steps=['Quan sát bản đồ nhỏ và hướng di chuyển của đối phương.','Báo tín hiệu trước khi phối hợp.','Ưu tiên mục tiêu quan trọng, tránh giao tranh không có lợi.'];
+}else if(match==='ahead'){
+ title='Giữ lợi thế, không mạo hiểm một mình';
+ detail=mid?'Bạn đang dẫn trước nhưng đồng đội ở xa. Tận dụng khoảng trống để lấy tài nguyên an toàn và chờ cơ hội đi cùng đội.':'Không cần mở giao tranh đơn độc khi đang dẫn trước. Bảo vệ tầm nhìn an toàn và kết nối lại đội hình.';
+ steps=['Tránh vào vùng tối thiếu thông tin.','Giữ đợt lính và vị trí an toàn.','Tập hợp đồng đội trước khi ép mục tiêu lớn.'];
+}else{
+ title='Giữ vị trí, theo dõi bản đồ và chờ thời cơ';
+ detail=mid?'Đã dọn lính nhưng chưa có đồng đội hỗ trợ. Quan sát bản đồ rồi mới quyết định đảo đường hoặc lùi về.':'Đồng đội đang ở xa. Ưu tiên bảo vệ khu vực an toàn và tránh cho đối phương cơ hội bắt lẻ.';
+ steps=['Kiểm tra hướng di chuyển của đối phương.','Ping thông tin quan trọng cho đồng đội.','Chỉ tiến lên khi có đủ tầm nhìn hoặc người hỗ trợ.'];
+}
+$('headline').textContent=title;$('detail').textContent=detail;$('steps').replaceChildren(...steps.map(t=>{let li=document.createElement('li');li.textContent=t;return li;}));
+document.querySelectorAll('[data-role]').forEach(b=>{let active=b.dataset.role===role;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
+for(const name of ['match','wave','team']){const input=document.querySelector('input[name="'+name+'"][value="'+state[name]+'"]');if(input)input.checked=true;}
+try{localStorage.setItem('lq-mid-support-v1',JSON.stringify(state));}catch(e){}
+}
+document.querySelectorAll('[data-role]').forEach(btn=>btn.addEventListener('click',()=>{state.role=btn.dataset.role;update();}));
+document.querySelectorAll('input[type="radio"]').forEach(input=>input.addEventListener('change',()=>{state[input.name]=input.value;update();}));
+update();
+})();
+</script></body></html>
